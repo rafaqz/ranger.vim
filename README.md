@@ -25,14 +25,11 @@ Use ranger as an operator, to add/edit a file path under the cursor:
 
     <leader>r[movement]
 
-example: 
+This example will replace the text inside () with whatever file path you select in ranger. If
+it's already a valid path ranger will open there:
 
     <leader>ri( 
 
-Will replace the text inside () with whatever file path you select in ranger. If
-it's already a file-path ranger will open there.
 
-
-
-ranger.vim wont work in gvim, but if you're using ranger, you probably don't use
-gvim anyway...
+_ranger.vim wont work in gvim, but if you're using ranger, you probably don't use
+gvim anyway..._
