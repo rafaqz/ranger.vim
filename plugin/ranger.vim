@@ -70,5 +70,5 @@ command! RangerSplit call RangerEdit("split")
 command! RangerVSplit call RangerEdit("vertical split")
 command! RangerTab call RangerEdit("tabedit")
 
-}}}
+" }}}
 
