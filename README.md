@@ -1,6 +1,9 @@
 ranger.vim
 ==========
 
+(https://github.com/rafaqz/ranger.vim)
+
+
 Ranger for vim!
 
 Ranger is a scriptable terminal file manager with vim like commands that
