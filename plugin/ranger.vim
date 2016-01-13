@@ -17,8 +17,7 @@ map <leader>rt :RangerTab<cr>
 " Functions {{{ 
 
 function! Ranger(path)
-  let cmd = printf("silent !ranger --choosefiles=/tmp/chosenfiles %s",
-        \ expand("%:p:h") . "/" . a:path)
+  let cmd = printf("silent !ranger --choosefiles=/tmp/chosenfiles %s", a:path)
   if has("gui_running") && (has("gui_gtk") || has("gui_motif"))
     let cmd = substitute(cmd, '!', '! urxvtr -e ', '')
   endif
@@ -26,7 +25,7 @@ function! Ranger(path)
 endfunction
 
 function! RangerEdit(layout)
-  exec Ranger("")
+  exec Ranger(expand("%:p:h"))
   if filereadable('/tmp/chosenfiles')
     let chosenfiles = system('cat /tmp/chosenfiles')
     let splitfiles = split(chosenfiles, "\n")
