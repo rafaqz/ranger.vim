@@ -4,14 +4,6 @@
 " Version:      1.0
 " Repo: rafaqz/ranger.vim
 "
-"----------------------------------------------
-" Mappings {{{ 
-
-map <leader>r :set operatorfunc=RangerOperator<cr>g@
-map <leader>rr :RangerEdit<cr>
-map <leader>rv :RangerVSplit<cr>
-map <leader>rs :RangerSplit<cr>
-map <leader>rt :RangerTab<cr>
 
 "----------------------------------------------}}}
 " Functions {{{ 
@@ -24,8 +16,13 @@ function! Ranger(path)
   exec cmd
 endfunction
 
-function! RangerEdit(layout)
-  exec Ranger(expand("%:p:h"))
+function! RangerEdit(layout, ...)
+  if a:0 > 0
+    let path = a:1
+  else
+    let path = expand("%:p:h")
+  endif
+  exec Ranger(path)
   if filereadable('/tmp/chosenfiles')
     let chosenfiles = system('cat /tmp/chosenfiles')
     let splitfiles = split(chosenfiles, "\n")
@@ -37,7 +34,7 @@ function! RangerEdit(layout)
   redraw!
 endfunction
 
-function! RangerOperator(type)
+function! RangerChangeOperator(type)
   exec "lcd %:p:h"
 
   if a:type ==# 'v'
@@ -59,6 +56,35 @@ function! RangerOperator(type)
     call system('rm /tmp/chosenfiles')
   endif
   redraw!
+endfunction
+
+function! RangerBrowseEdit(type)
+  call RangerBrowseOperator(a:type, 'edit')
+endfunction
+function! RangerBrowseTab(type)
+  call RangerBrowseOperator(a:type, 'tabedit')
+endfunction
+function! RangerBrowseSplit(type)
+  call RangerBrowseOperator(a:type, 'split')
+endfunction
+function! RangerBrowseVSplit(type)
+  call RangerBrowseOperator(a:type, 'vertical split')
+endfunction
+
+function! RangerBrowseOperator(type, layout)
+  exec "lcd %:p:h"
+
+  if a:type ==# 'v'
+      normal! `<v`>y
+  elseif a:type ==# 'char'
+      normal! `[v`]y
+  else
+      return
+  endif
+
+  let path = @@
+  let dir = fnamemodify(path, ':h')
+  call RangerEdit(a:layout, path)
 endfunction
 
 "----------------------------------------------}}}
