@@ -16,15 +16,15 @@ http://ranger.nongnu.org/
 
 The rest of the readme assumes these mappings.
 
-map <leader>rc :set operatorfunc=RangerChangeOperator<cr>g@
-map <leader>rR :set operatorfunc=RangerBrowseEdit<cr>g@
-map <leader>rT :set operatorfunc=RangerBrowseTab<cr>g@
-map <leader>rS :set operatorfunc=RangerBrowseSplit<cr>g@
-map <leader>rV :set operatorfunc=RangerBrowseVSplit<cr>g@
-map <leader>rr :RangerEdit<cr>
-map <leader>rv :RangerVSplit<cr>
-map <leader>rs :RangerSplit<cr>
-map <leader>rt :RangerTab<cr>
+    map <leader>rc :set operatorfunc=RangerChangeOperator<cr>g@
+    map <leader>rR :set operatorfunc=RangerBrowseEdit<cr>g@
+    map <leader>rT :set operatorfunc=RangerBrowseTab<cr>g@
+    map <leader>rS :set operatorfunc=RangerBrowseSplit<cr>g@
+    map <leader>rV :set operatorfunc=RangerBrowseVSplit<cr>g@
+    map <leader>rr :RangerEdit<cr>
+    map <leader>rv :RangerVSplit<cr>
+    map <leader>rs :RangerSplit<cr>
+    map <leader>rt :RangerTab<cr>
 
 ## To browse and open file(s) with ranger:
 
