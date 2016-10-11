@@ -51,8 +51,35 @@ function! RangerChangeOperator(type)
   if filereadable('/tmp/chosenfiles')
     " Load filename, remove trailing null char
     let result = substitute(system('cat /tmp/chosenfiles'), "\n*$", '', '')
-    echo "fooooobaaaar"
     exec "normal `<v`>xi" . result
+    call system('rm /tmp/chosenfiles')
+  endif
+  redraw!
+endfunction
+
+function! RangerInsert()
+  exec "lcd %:p:h"
+  let path = expand("%:p:h")
+
+  call Ranger(path)
+  if filereadable('/tmp/chosenfiles')
+    " Load filename, remove trailing null char
+    let result = substitute(system('cat /tmp/chosenfiles'), "\n*$", '', '')
+    exec "normal i" . result
+    call system('rm /tmp/chosenfiles')
+  endif
+  redraw!
+endfunction
+
+function! RangerAppend()
+  exec "lcd %:p:h"
+  let path = expand("%:p:h")
+
+  call Ranger(path)
+  if filereadable('/tmp/chosenfiles')
+    " Load filename, remove trailing null char
+    let result = substitute(system('cat /tmp/chosenfiles'), "\n*$", '', '')
+    exec "normal a" . result
     call system('rm /tmp/chosenfiles')
   endif
   redraw!
@@ -94,6 +121,8 @@ command! RangerEdit call RangerEdit("edit")
 command! RangerSplit call RangerEdit("split")
 command! RangerVSplit call RangerEdit("vertical split")
 command! RangerTab call RangerEdit("tabedit")
+command! RangerInsert call RangerInsert()
+command! RangerAppend call RangerAppend()
 
 " }}}
 

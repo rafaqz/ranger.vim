@@ -21,6 +21,8 @@ The rest of the readme assumes these mappings.
     map <leader>rT :set operatorfunc=RangerBrowseTab<cr>g@
     map <leader>rS :set operatorfunc=RangerBrowseSplit<cr>g@
     map <leader>rV :set operatorfunc=RangerBrowseVSplit<cr>g@
+    map <leader>ri :RangerInsert<cr>
+    map <leader>ra :RangerAppend<cr>
     map <leader>rr :RangerEdit<cr>
     map <leader>rv :RangerVSplit<cr>
     map <leader>rs :RangerSplit<cr>
@@ -37,6 +39,11 @@ Each file selected gets a new tab/split.
     <leader>rs
     <leader>rv
 
+## To insert or append a filepath
+
+    <leader>ri
+    <leader>ra
+
 ## To use ranger as an operator and change a file path under the cursor:
 
     <leader>rc[movement]
@@ -52,7 +59,6 @@ it's already a valid path ranger will open there:
     <leader>rT[movement]
     <leader>rS[movement]
     <leader>rV[movement]
-
 
 
 _ranger.vim wont work in gvim, but if you're using ranger, you probably don't use
