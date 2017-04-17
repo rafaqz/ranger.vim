@@ -1,42 +1,88 @@
 "ranger.vim
 "
-" Maintainer:   Rafael Schouten
-" Version:      1.0
 " Repo: rafaqz/ranger.vim
 "
+" Thanks airodactyl for code from neovim-ranger
 
 "----------------------------------------------}}}
-" Functions {{{ 
+" {{{ Magic
 
-function! Ranger(path)
-  let cmd = printf("silent !ranger --choosefiles=/tmp/chosenfiles %s", a:path)
-  if has("gui_running") && (has("gui_gtk") || has("gui_motif"))
-    let cmd = substitute(cmd, '!', '! urxvtr -e ', '')
+function! s:RangerMagic(path)
+	if exists('g:ranger_tempfile')
+		let names = s:ReadFile()
+    unlet g:ranger_tempfile
+
+		if empty(names)
+			return
+		endif
+
+    if exists("g:ranger_action")
+      exec "normal " . g:ranger_action . names[0]
+      unlet g:ranger_action
+    else
+      exec g:ranger_layout . fnameescape(names[0])
+        filetype detect
+      for name in names[1:]
+        exec g:ranger_layout . ' ' . fnameescape(name)
+        filetype detect
+      endfor
+    endif
+
+	elseif isdirectory(a:path)
+    let g:ranger_tempfile = tempname()
+    if has("nvim")
+      exec 'silent terminal ranger --choosefiles=' . shellescape(g:ranger_tempfile) . ' ' . shellescape(a:path)
+      exec 'normal i'
+    else 
+      let g:ranger_tempfile = tempname()
+      exec 'silent !ranger --choosefiles=' . shellescape(g:ranger_tempfile) . ' ' . shellescape(a:path)
+      if has("gui_running") && (has("gui_gtk") || has("gui_motif"))
+        let cmd = substitute(cmd, '!', '! urxvtr -e ', '')
+      endif
+      exec cmd
+    endif
+	endif
+endfunction
+
+au BufEnter * silent call s:RangerMagic(expand("<amatch>")) 
+let g:loaded_netrwPlugin = 'disable'
+
+"----------------------------------------------}}}
+" {{{ Open files
+
+function! s:Ranger(path)
+  exec g:ranger_layout . '! ' . a:path
+endfunction
+
+function! s:ReadFile()
+  if filereadable(g:ranger_tempfile)
+    return readfile(g:ranger_tempfile)
   endif
-  exec cmd
 endfunction
 
 function! RangerEdit(layout, ...)
+  let g:ranger_layout = a:layout
   if a:0 > 0
-    let path = a:1
+    let l:path = a:1
   else
-    let path = expand("%:p:h")
+    let l:path = expand("%:p:h")
   endif
-  exec Ranger(path)
-  if filereadable('/tmp/chosenfiles')
-    let chosenfiles = system('cat /tmp/chosenfiles')
-    let splitfiles = split(chosenfiles, "\n")
-    for filename in splitfiles
-      exec a:layout . " " . filename
-    endfor
-    call system('rm /tmp/chosenfiles')
-  endif
-  redraw!
+  call s:Ranger(path)
 endfunction
 
-function! RangerChangeOperator(type)
+"----------------------------------------------}}}
+" {{{ Insert and append filenames
+function! RangerPaste(action)
+  let g:ranger_action = a:action
+  let g:ranger_layout = 'tabedit'
   exec "lcd %:p:h"
+  let path = fnameescape(expand("%:p:h"))
+  call s:Ranger(path)
+endfunction
 
+"----------------------------------------------}}}
+" {{{ Change filename selected by operator using ranger
+function! RangerChangeOperator(type)
   if a:type ==# 'v'
       normal! `<v`>y
   elseif a:type ==# 'char'
@@ -45,45 +91,14 @@ function! RangerChangeOperator(type)
       return
   endif
 
-  let path = @@
-  let dir = fnamemodify(path, ':h')
-  call Ranger(dir)
-  if filereadable('/tmp/chosenfiles')
-    " Load filename, remove trailing null char
-    let result = substitute(system('cat /tmp/chosenfiles'), "\n*$", '', '')
-    exec "normal `<v`>xi" . result
-    call system('rm /tmp/chosenfiles')
-  endif
-  redraw!
+  let g:ranger_action =  "`<v`>xi"
+  let g:ranger_layout = 'tabedit'
+  let path = fnamemodify(fnameescape(@@), ':h')
+  call s:Ranger(path)
 endfunction
 
-function! RangerInsert()
-  exec "lcd %:p:h"
-  let path = expand("%:p:h")
-
-  call Ranger(path)
-  if filereadable('/tmp/chosenfiles')
-    " Load filename, remove trailing null char
-    let result = substitute(system('cat /tmp/chosenfiles'), "\n*$", '', '')
-    exec "normal i" . result
-    call system('rm /tmp/chosenfiles')
-  endif
-  redraw!
-endfunction
-
-function! RangerAppend()
-  exec "lcd %:p:h"
-  let path = expand("%:p:h")
-
-  call Ranger(path)
-  if filereadable('/tmp/chosenfiles')
-    " Load filename, remove trailing null char
-    let result = substitute(system('cat /tmp/chosenfiles'), "\n*$", '', '')
-    exec "normal a" . result
-    call system('rm /tmp/chosenfiles')
-  endif
-  redraw!
-endfunction
+"----------------------------------------------}}}
+" {{{  Browse path from operator using ranger
 
 function! RangerBrowseEdit(type)
   call RangerBrowseOperator(a:type, 'edit')
@@ -99,8 +114,6 @@ function! RangerBrowseVSplit(type)
 endfunction
 
 function! RangerBrowseOperator(type, layout)
-  exec "lcd %:p:h"
-
   if a:type ==# 'v'
       normal! `<v`>y
   elseif a:type ==# 'char'
@@ -109,20 +122,19 @@ function! RangerBrowseOperator(type, layout)
       return
   endif
 
-  let path = @@
-  let dir = fnamemodify(path, ':h')
+  let path = fnamemodify(fnameescape(@@), ':h')
   call RangerEdit(a:layout, path)
 endfunction
 
 "----------------------------------------------}}}
-" Commands {{{ 
+" {{{  Commands
 
 command! RangerEdit call RangerEdit("edit")
 command! RangerSplit call RangerEdit("split")
 command! RangerVSplit call RangerEdit("vertical split")
 command! RangerTab call RangerEdit("tabedit")
-command! RangerInsert call RangerInsert()
-command! RangerAppend call RangerAppend()
+command! RangerInsert call RangerPaste('i')
+command! RangerAppend call RangerPaste('a')
 
-" }}}
+"----------------------------------------------}}}
 
