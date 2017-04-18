@@ -9,24 +9,7 @@
 
 function! s:RangerMagic(path)
 	if exists('g:ranger_tempfile')
-		let names = s:ReadFile()
-    unlet g:ranger_tempfile
-
-		if empty(names)
-			return
-		endif
-
-    if exists("g:ranger_action")
-      exec "normal " . g:ranger_action . names[0]
-      unlet g:ranger_action
-    else
-      exec g:ranger_layout . fnameescape(names[0])
-        filetype detect
-      for name in names[1:]
-        exec g:ranger_layout . ' ' . fnameescape(name)
-        filetype detect
-      endfor
-    endif
+    call s:HandleOutput()
 
 	elseif isdirectory(a:path)
     let g:ranger_tempfile = tempname()
@@ -35,13 +18,39 @@ function! s:RangerMagic(path)
       exec 'normal i'
     else 
       let g:ranger_tempfile = tempname()
-      exec 'silent !ranger --choosefiles=' . shellescape(g:ranger_tempfile) . ' ' . shellescape(a:path)
+      let cmd = 'silent !ranger --choosefiles=' . shellescape(g:ranger_tempfile) . ' ' . shellescape(a:path)
       if has("gui_running") && (has("gui_gtk") || has("gui_motif"))
         let cmd = substitute(cmd, '!', '! urxvtr -e ', '')
       endif
       exec cmd
+      if !(g:ranger_layout ==# "edit")
+        exec 'close'
+      endif
+      call s:HandleOutput()
+      redraw!
     endif
 	endif
+endfunction
+
+function! s:HandleOutput()
+  let names = s:ReadFile()
+  unlet g:ranger_tempfile
+
+  if empty(names)
+    return
+  endif
+
+  if exists("g:ranger_action")
+    exec "normal " . g:ranger_action . names[0]
+    unlet g:ranger_action
+  else
+    exec g:ranger_layout . fnameescape(names[0])
+      filetype detect
+    for name in names[1:]
+      exec g:ranger_layout . ' ' . fnameescape(name)
+      filetype detect
+    endfor
+  endif
 endfunction
 
 au BufEnter * silent call s:RangerMagic(expand("<amatch>")) 
