@@ -11,15 +11,17 @@ displays files as you browse (even images).
 
 http://ranger.nongnu.org/
 
-This plugin draws on the examples included with ranger and airodactyl neovim-ranger.
+This plugin draws on the examples included with ranger and
+airodactyl/neovim-ranger to embed ranger as vims file manager, as a better
+alternative to the built in file manager or nerd-tree.
 
-But it does more than the other ranger plugins! 
+I maintain this version because it does a lot more than the other ranger
+plugins, and I need the things.
 
-- It's vim and neovim compatible for a start. 
-- It opens files in current tab, new tabs, splits or vertical splits. 
-- It inserts/appends filenames into the current buffer
-- It works as an operator to replace a file path selected with any vim operator
-  with a selected filepath
+- It's vim and neovim compatible.
+- It can open files in the current tab, new tabs, splits or vertical splits. 
+- It can insert/append filenames into the current buffer.
+- It works as an operator to replace a file path selected with any vim movement.
 - It works as an operator to browse and open files from a selected file path.
 - It now replace vims internal file browser with ranger, by default (thanks airodactyl)
 
