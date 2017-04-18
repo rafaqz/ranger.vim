@@ -83,7 +83,7 @@ endfunction
 " {{{ Insert and append filenames
 function! RangerPaste(action)
   let g:ranger_action = a:action
-  let g:ranger_layout = 'tabedit'
+  let g:ranger_layout = 'split'
   exec "lcd %:p:h"
   let path = fnameescape(expand("%:p:h"))
   call s:Ranger(path)
@@ -101,7 +101,7 @@ function! RangerChangeOperator(type)
   endif
 
   let g:ranger_action =  "`<v`>xi"
-  let g:ranger_layout = 'tabedit'
+  let g:ranger_layout = 'split'
   let path = fnamemodify(fnameescape(@@), ':h')
   call s:Ranger(path)
 endfunction
