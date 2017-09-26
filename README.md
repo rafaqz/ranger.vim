@@ -23,7 +23,18 @@ plugins, and I need the things.
 - It can insert/append filenames into the current buffer.
 - It works as an operator to replace a file path selected with any vim movement.
 - It works as an operator to browse and open files from a selected file path.
-- It now replace vims internal file browser with ranger, by default (thanks airodactyl)
+- It now completely replaces vims internal file browser with ranger by default (thanks airodactyl)
+
+
+# gvim
+Ranger needs to run in an external terminal in gvim, so specify your terminal with
+the program flag:
+
+```vimscript
+let g:ranger_terminal = 'urxvt -e'
+let g:ranger_terminal = 'xterm -e'
+```
+
 
 ## Suggested Mappings 
 
