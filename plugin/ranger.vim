@@ -7,10 +7,8 @@
 "----------------------------------------------}}}
 function! s:RangerMagic(path) " {{{ 
   " Ranger has already run, so do something with the output.
-	if exists('g:ranger_tempfile')
-    call s:HandleRangerOutput()
   " Otherwise, run ranger if the specified path actually exists.
-	elseif isdirectory(a:path)
+	if isdirectory(a:path)
     " Opening in the current window is the default.
     if !(exists("g:ranger_layout"))
       let g:ranger_layout = "edit"
@@ -21,8 +19,13 @@ function! s:RangerMagic(path) " {{{
     let opts = ' --choosefiles=' . shellescape(g:ranger_tempfile) . ' ' . shellescape(a:path)
     " Nvim 
     if has('nvim')
-      exec 'silent terminal ranger' . opts 
-      exec 'normal i'
+      let rangerCallback = { 'name': 'ranger' }
+      function! rangerCallback.on_exit(id, code, _event)
+        silent! bdelete!
+        call s:HandleRangerOutput()
+      endfunction
+      call termopen("ranger " . opts, rangerCallback)  
+      startinsert
     " Vim
     else 
       let cmd = 'silent !ranger' . opts
@@ -45,6 +48,7 @@ endfunction
 " Swap vims native file browser for ranger.
 au BufEnter * silent call s:RangerMagic(expand("<amatch>")) 
 let g:loaded_netrwPlugin = 'disable'
+
 
 "---------------------------------------}}}
 function! s:HandleRangerOutput() " {{{ 
