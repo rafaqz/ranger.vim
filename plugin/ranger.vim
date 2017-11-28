@@ -66,16 +66,19 @@ function! s:HandleRangerOutput() " {{{
       let parent_dir = fnamemodify(names[0], ':h')
       exec g:ranger_command . ' ' . parent_dir 
     elseif g:ranger_command == "action" 
-      " Relative to pwd, otherwise home dir, otherwise root.
+      " Return a path relative to pwd, otherwise home dir, otherwise root.
       let filename = fnamemodify(names[0], ':~:.')
       exec "normal " . g:ranger_action . filename
     endif
     unlet g:ranger_command
-  " Open returned filenames in chosen layout
+  " Otherwise open returned filenames in the chosen layout
   else 
     for name in names
-      exec g:ranger_layout . ' ' . fnameescape(name)
-      doau BufRead
+      try 
+        exec g:ranger_layout . ' ' . fnameescape(name)
+        doau BufRead
+      catch
+      endtry
     endfor
   endif
 endfunction
