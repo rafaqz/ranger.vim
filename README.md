@@ -35,6 +35,10 @@ let g:ranger_terminal = 'urxvt -e'
 let g:ranger_terminal = 'xterm -e'
 ```
 
+In vim 8 gvim, ranger does not run smoothly in the internal terminal, and asynchronous execution
+means there gvim doesn't know when ranger is finished. For now, use vim or nvim
+only.
+
 
 ## Suggested Mappings 
 
