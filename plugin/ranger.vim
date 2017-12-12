@@ -4,7 +4,7 @@
 "
 " Thanks airodactyl for code from neovim-ranger
 
-"----------------------------------------------}}}
+"----------------------------------------------
 function! s:RangerMagic(path) " {{{ 
 	if !(isdirectory(a:path))
     return
@@ -77,7 +77,7 @@ function! s:HandleRangerOutput() " {{{
   endif
 endfunction
 
-function! s:RunCommand(names) " {{{ 
+function! s:RunCommand(names)
   if g:ranger_command == "lcd" || g:ranger_command == "lcd" 
     let parent_dir = fnamemodify(a:names[0], ':h')
     exec g:ranger_command . ' ' . parent_dir 
@@ -89,7 +89,7 @@ function! s:RunCommand(names) " {{{
   unlet g:ranger_command
 endfunction
 
-function! s:OpenFile(names) " {{{ 
+function! s:OpenFile(names)
   " Otherwise open returned filenames in the chosen layout
   for name in a:names
     try 
@@ -100,13 +100,11 @@ function! s:OpenFile(names) " {{{
   endfor
 endfunction
 
-function! s:ReadRangerOutput() " {{{ 
+function! s:ReadRangerOutput()
   if filereadable(g:ranger_tempfile)
     return readfile(g:ranger_tempfile)
   endif
 endfunction
-
-"---------------------------------------}}}
 
 "----------------------------------------------}}}
 function! s:Ranger(path) " {{{

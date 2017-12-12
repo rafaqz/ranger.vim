@@ -51,10 +51,6 @@ The rest of the readme assumes these mappings:
     map <leader>ri :RangerInsert<cr>
     map <leader>ra :RangerAppend<cr>
     map <leader>rc :set operatorfunc=RangerChangeOperator<cr>g@
-    map <leader>rR :set operatorfunc=RangerBrowseEdit<cr>g@
-    map <leader>rT :set operatorfunc=RangerBrowseTab<cr>g@
-    map <leader>rS :set operatorfunc=RangerBrowseSplit<cr>g@
-    map <leader>rV :set operatorfunc=RangerBrowseVSplit<cr>g@
 
 ## To browse and open file(s) with ranger:
 
@@ -80,9 +76,3 @@ This example will replace the text inside () with whatever file path you select 
 it's already a valid path ranger will open there:
 
     <leader>rci( 
-
-## To use ranger as an operator and browse a file path under the cursor:
-    <leader>rR[movement]
-    <leader>rT[movement]
-    <leader>rS[movement]
-    <leader>rV[movement]
