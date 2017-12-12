@@ -6,43 +6,51 @@
 
 "----------------------------------------------}}}
 function! s:RangerMagic(path) " {{{ 
-  " Ranger has already run, so do something with the output.
-  " Otherwise, run ranger if the specified path actually exists.
-	if isdirectory(a:path)
-    " Opening in the current window is the default.
-    if !(exists("g:ranger_layout"))
-      let g:ranger_layout = "edit"
-    endif
-    " Create a new temporary file name
-    let g:ranger_tempfile = tempname()
-
-    let opts = ' --choosefiles=' . shellescape(g:ranger_tempfile) . ' ' . shellescape(a:path)
-    " Nvim 
-    if has('nvim')
-      let rangerCallback = { 'name': 'ranger' }
-      function! rangerCallback.on_exit(id, code, _event)
-        silent! bdelete!
-        call s:HandleRangerOutput()
-      endfunction
-      call termopen("ranger " . opts, rangerCallback)  
-      startinsert
-    " Vim
-    else 
-      let cmd = 'silent !ranger' . opts
-      " Gvim probably doesn't work even with this modification
-      if has("gui_running") && (has("gui_gtk") || has("gui_motif"))
-        let cmd = '!' . g:ranger_terminal . ' ranger' . opts
-      endif
-      exec cmd
-      " Fudge to end up in the right window
-      if !(g:ranger_layout ==# "edit")
-        exec 'close'
-      endif
-      " Open/insert/past/etc. whatever ranger returns.
-      call s:HandleRangerOutput()
-      redraw!
-    endif
+	if !(isdirectory(a:path))
+    return
 	endif
+
+  " Open in the current window if opened from vim netrw. 
+  if !(exists("g:ranger_layout"))
+    let g:ranger_layout = "edit"
+  endif
+
+  " Create a new temporary file name
+  let g:ranger_tempfile = tempname()
+  let opts = ' --choosefiles=' . shellescape(g:ranger_tempfile) . ' ' . shellescape(a:path)
+
+  if has('nvim')
+    call s:RangerNVim(opts)
+  else 
+    call s:RangerVim(opts)
+  endif
+
+endfunction
+
+function! s:RangerNVim(opts)
+  let rangerCallback = { 'name': 'ranger' }
+  function! rangerCallback.on_exit(id, code, _event)
+    silent! bdelete!
+    call s:HandleRangerOutput()
+  endfunction
+
+  call termopen("ranger " . a:opts, rangerCallback)  
+  startinsert
+endfunction
+
+function! s:RangerVim(opts)
+  let cmd = 'silent !ranger' . a:opts
+  " TODO: Gvim will now need a callback to work
+  if has("gui_running") && (has("gui_gtk") || has("gui_motif"))
+    let cmd = '!' . g:ranger_terminal . ' ranger' . a:opts
+  endif
+  exec cmd
+  if !(g:ranger_layout ==# "edit")
+    exec 'close'
+  endif
+
+  call s:HandleRangerOutput()
+  redraw!
 endfunction
 
 " Swap vims native file browser for ranger.
@@ -56,31 +64,40 @@ function! s:HandleRangerOutput() " {{{
   unlet g:ranger_tempfile
 
   if empty(names)
-    execute "normal \<C-O>"
+    if !(has('nvim')) && (g:ranger_layout == "edit")
+      execute "normal \<C-O>"
+    endif
     return
   endif
 
-  " Run an action on returned filename
   if exists("g:ranger_command") 
-    if g:ranger_command == "lcd" || g:ranger_command == "lcd" 
-      let parent_dir = fnamemodify(names[0], ':h')
-      exec g:ranger_command . ' ' . parent_dir 
-    elseif g:ranger_command == "action" 
-      " Return a path relative to pwd, otherwise home dir, otherwise root.
-      let filename = fnamemodify(names[0], ':~:.')
-      exec "normal " . g:ranger_action . filename
-    endif
-    unlet g:ranger_command
-  " Otherwise open returned filenames in the chosen layout
+    call s:RunCommand(names)
   else 
-    for name in names
-      try 
-        exec g:ranger_layout . ' ' . fnameescape(name)
-        doau BufRead
-      catch
-      endtry
-    endfor
+    call s:OpenFile(names)
   endif
+endfunction
+
+function! s:RunCommand(names) " {{{ 
+  if g:ranger_command == "lcd" || g:ranger_command == "lcd" 
+    let parent_dir = fnamemodify(a:names[0], ':h')
+    exec g:ranger_command . ' ' . parent_dir 
+  elseif g:ranger_command == "action" 
+    " Return a path relative to pwd, otherwise home dir, otherwise root.
+    let filename = fnamemodify(a:names[0], ':~:.')
+    exec "normal " . g:ranger_action . filename
+  endif
+  unlet g:ranger_command
+endfunction
+
+function! s:OpenFile(names) " {{{ 
+  " Otherwise open returned filenames in the chosen layout
+  for name in a:names
+    try 
+      exec g:ranger_layout . ' ' . fnameescape(name)
+      doau BufRead
+    catch
+    endtry
+  endfor
 endfunction
 
 function! s:ReadRangerOutput() " {{{ 
@@ -94,7 +111,11 @@ endfunction
 "----------------------------------------------}}}
 function! s:Ranger(path) " {{{
   " Open a new layout at a path to start ranger
-  exec g:ranger_layout . '! ' . a:path
+  if has('nvim') && (g:ranger_layout == 'edit')
+    exec 'tabedit! ' . a:path
+  else
+    exec g:ranger_layout . '! ' . a:path
+  endif
 endfunction
 
 "----------------------------------------------}}}
