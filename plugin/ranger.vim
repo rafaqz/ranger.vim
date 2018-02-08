@@ -30,7 +30,15 @@ endfunction
 function! s:RangerNVim(opts)
   let rangerCallback = { 'name': 'ranger' }
   function! rangerCallback.on_exit(id, code, _event)
-    silent! bdelete!
+    if g:ranger_layout != 'edit'
+      silent! bdelete!
+    else
+      if bufnr('%') != bufnr('#')
+        setl bufhidden=delete | buffer! #
+      else
+        enew | bdelete! #
+      endif
+    endif
     call s:HandleRangerOutput()
   endfunction
 
@@ -109,11 +117,7 @@ endfunction
 "----------------------------------------------}}}
 function! s:Ranger(path) " {{{
   " Open a new layout at a path to start ranger
-  if has('nvim') && (g:ranger_layout == 'edit')
-    exec 'tabedit! ' . a:path
-  else
-    exec g:ranger_layout . '! ' . a:path
-  endif
+  exec g:ranger_layout . '! ' . a:path
 endfunction
 
 "----------------------------------------------}}}
