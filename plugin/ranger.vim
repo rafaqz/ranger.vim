@@ -101,7 +101,7 @@ function! s:OpenFile(names)
   " Otherwise open returned filenames in the chosen layout
   for name in a:names
     try 
-      exec g:ranger_layout . ' ' . fnameescape(name)
+      exec "silent " . g:ranger_layout . ' ' . fnameescape(name)
       doau BufRead
     catch
     endtry
