@@ -5,12 +5,12 @@
 " Thanks airodactyl for code from neovim-ranger
 
 "----------------------------------------------
-function! s:RangerMagic(path) " {{{ 
+function! s:RangerMagic(path) " {{{
 	if !(isdirectory(a:path))
     return
 	endif
 
-  " Open in the current window if opened from vim netrw. 
+  " Open in the current window if opened from vim netrw.
   if !(exists("g:ranger_layout"))
     let g:ranger_layout = "edit"
   endif
@@ -21,7 +21,7 @@ function! s:RangerMagic(path) " {{{
 
   if has('nvim')
     call s:RangerNVim(opts)
-  else 
+  else
     call s:RangerVim(opts)
   endif
 
@@ -42,7 +42,7 @@ function! s:RangerNVim(opts)
     call s:HandleRangerOutput()
   endfunction
 
-  call termopen("ranger " . a:opts, rangerCallback)  
+  call termopen("ranger " . a:opts, rangerCallback)
   startinsert
 endfunction
 
@@ -62,12 +62,12 @@ function! s:RangerVim(opts)
 endfunction
 
 " Swap vims native file browser for ranger.
-au BufEnter * silent call s:RangerMagic(expand("<amatch>")) 
+au BufEnter * silent call s:RangerMagic(expand("<amatch>"))
 let g:loaded_netrwPlugin = 'disable'
 
 
 "---------------------------------------}}}
-function! s:HandleRangerOutput() " {{{ 
+function! s:HandleRangerOutput() " {{{
   let names = s:ReadRangerOutput()
   unlet g:ranger_tempfile
 
@@ -78,21 +78,22 @@ function! s:HandleRangerOutput() " {{{
     return
   endif
 
-  if exists("g:ranger_command") 
+  if exists("g:ranger_command")
     call s:RunCommand(names)
-  else 
+  else
     call s:OpenFile(names)
   endif
 endfunction
 
 function! s:RunCommand(names)
-  if g:ranger_command == "lcd" || g:ranger_command == "lcd" 
+  if g:ranger_command == "lcd" || g:ranger_command == "lcd"
     let parent_dir = fnamemodify(a:names[0], ':h')
-    exec g:ranger_command . ' ' . parent_dir 
-  elseif g:ranger_command == "action" 
+    exec g:ranger_command . ' ' . parent_dir
+  elseif g:ranger_command == "action"
     " Return a path relative to pwd, otherwise home dir, otherwise root.
-    let filename = fnamemodify(a:names[0], ':~:.')
-    exec "normal " . g:ranger_action . filename
+    let filenames = map(a:names, {key, val -> fnamemodify(val, ":~:.")})
+    let str = join(filenames, "\r")
+    exec "normal " . g:ranger_action . str
   endif
   unlet g:ranger_command
 endfunction
@@ -100,7 +101,7 @@ endfunction
 function! s:OpenFile(names)
   " Otherwise open returned filenames in the chosen layout
   for name in a:names
-    try 
+    try
       exec "silent " . g:ranger_layout . ' ' . fnameescape(name)
       doau BufRead
     catch
@@ -133,14 +134,14 @@ endfunction
 
 "----------------------------------------------}}}
 function! RangerPWD(command) " {{{
-  let g:ranger_command = a:command 
+  let g:ranger_command = a:command
   let g:ranger_layout = 'split'
   let path = fnameescape(expand("%:p:h"))
   call s:Ranger(path)
 endfunction
 
 "----------------------------------------------}}}
-function! RangerPaste(action) " {{{ 
+function! RangerPaste(action) " {{{
   " Insert or append filenames
   let g:ranger_command = "action"
   let g:ranger_action = a:action
@@ -150,7 +151,7 @@ function! RangerPaste(action) " {{{
 endfunction
 
 "----------------------------------------------}}}
-function! RangerChangeOperator(type) " {{{ 
+function! RangerChangeOperator(type) " {{{
   " Change filename selected by operator using ranger
   let g:ranger_command = "action"
   let g:ranger_action =  "`<v`>xi"
