@@ -9,7 +9,7 @@ ranger.vim
 Ranger is a scriptable terminal file manager with vim like commands that
 displays files as you browse (even images).
 
-http://ranger.nongnu.org/
+https://ranger.github.io/
 
 This plugin draws on the examples included with ranger and
 airodactyl/neovim-ranger to embed ranger as vims file manager, as a better
