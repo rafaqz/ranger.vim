@@ -15,9 +15,13 @@ function! s:RangerMagic(path) " {{{
     let g:ranger_layout = "edit"
   endif
 
+  if !(exists("g:additional_opts"))
+    let g:additional_opts = ""
+  endif
+
   " Create a new temporary file name
   let g:ranger_tempfile = tempname()
-  let opts = ' --choosefiles=' . shellescape(g:ranger_tempfile) . ' ' . shellescape(a:path)
+  let opts = ' --choosefiles=' . shellescape(g:ranger_tempfile) . ' ' . shellescape(a:path) . ' ' . g:additional_opts
 
   if has('nvim')
     call s:RangerNVim(opts)
@@ -124,11 +128,8 @@ endfunction
 "----------------------------------------------}}}
 function! RangerEdit(layout, ...) " {{{
   let g:ranger_layout = a:layout
-  if a:0 > 0
-    let l:path = a:1
-  else
-    let l:path = expand("%:p:h")
-  endif
+  let l:path = exists('a:1') && a:1 ? a:1 : expand("%:p:h")
+  let g:additional_opts = exists('a:2') ? a:2 : ""
   call s:Ranger(path)
 endfunction
 
