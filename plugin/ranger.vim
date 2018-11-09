@@ -134,19 +134,21 @@ function! RangerEdit(layout, ...) " {{{
 endfunction
 
 "----------------------------------------------}}}
-function! RangerPWD(command) " {{{
+function! RangerPWD(command, ...) " {{{
   let g:ranger_command = a:command
   let g:ranger_layout = 'split'
+  let g:additional_opts = exists('a:1') ? a:1 : ""
   let path = fnameescape(expand("%:p:h"))
   call s:Ranger(path)
 endfunction
 
 "----------------------------------------------}}}
-function! RangerPaste(action) " {{{
+function! RangerPaste(action, ...) " {{{
   " Insert or append filenames
   let g:ranger_command = "action"
   let g:ranger_action = a:action
   let g:ranger_layout = 'split'
+  let g:additional_opts = exists('a:1') ? a:1 : ""
   let path = fnameescape(expand("%:p:h"))
   call s:Ranger(path)
 endfunction
