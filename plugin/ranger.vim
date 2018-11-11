@@ -128,7 +128,7 @@ endfunction
 "----------------------------------------------}}}
 function! RangerEdit(layout, ...) " {{{
   let g:ranger_layout = a:layout
-  let l:path = exists('a:1') && a:1 ? a:1 : expand("%:p:h")
+  let l:path = exists('a:1') ? a:1 : expand("%:p:h")
   let g:additional_opts = exists('a:2') ? a:2 : ""
   call s:Ranger(path)
 endfunction
