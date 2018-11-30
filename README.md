@@ -23,7 +23,8 @@ plugins, and I need the things.
 - It can insert/append filenames into the current buffer.
 - It works as an operator to replace a file path selected with any vim movement.
 - It works as an operator to browse and open files from a selected file path.
-- It now completely replaces vims internal file browser with ranger by default (thanks airodactyl)
+- It now completely replaces vims internal file browser with ranger by default (thanks airodactyl).
+- It can change the current working directory (`:cd` and `:lcd`).
 
 
 # gvim
@@ -51,6 +52,8 @@ The rest of the readme assumes these mappings:
     map <leader>ri :RangerInsert<cr>
     map <leader>ra :RangerAppend<cr>
     map <leader>rc :set operatorfunc=RangerChangeOperator<cr>g@
+    map <leader>rd :RangerCD<cr>
+    map <leader>rld :RangerLCD<cr>
 
 ## To browse and open file(s) with ranger:
 
@@ -63,7 +66,7 @@ Each file selected gets a new tab/split.
     <leader>rs
     <leader>rv
 
-## To insert or append a filepath
+## To insert or append a filepath:
 
     <leader>ri
     <leader>ra
@@ -76,3 +79,8 @@ This example will replace the text inside () with whatever file path you select 
 it's already a valid path ranger will open there:
 
     <leader>rci( 
+
+## To change the current working directory:
+
+    <leader>rd
+    <leader>rld
