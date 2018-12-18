@@ -5,7 +5,7 @@
 " Thanks airodactyl for code from neovim-ranger
 
 "----------------------------------------------
-function! s:RangerMagic(path) " {{{
+function! s:RangerMagic(path) abort " {{{
 	if !(isdirectory(a:path))
     return
 	endif
@@ -17,19 +17,24 @@ function! s:RangerMagic(path) " {{{
 
   " Create a new temporary file name
   let g:ranger_tempfile = tempname()
-  let opts = ' --choosefiles=' . shellescape(g:ranger_tempfile) . ' ' . shellescape(a:path)
+  if g:ranger_cd_mode
+    let l:choose_arg = 'choosedir'
+  else
+    let l:choose_arg = 'choosefiles'
+  endif
+  let l:opts =  printf('--%s=%s %s', l:choose_arg, shellescape(g:ranger_tempfile), shellescape(a:path))
 
   if has('nvim')
-    call s:RangerNVim(opts)
+    call s:RangerNVim(l:opts)
   else
-    call s:RangerVim(opts)
+    call s:RangerVim(l:opts)
   endif
 
 endfunction
 
-function! s:RangerNVim(opts)
-  let rangerCallback = { 'name': 'ranger' }
-  function! rangerCallback.on_exit(id, code, _event)
+function! s:RangerNVim(opts) abort
+  let l:rangerCallback = { 'name': 'ranger' }
+  function! l:rangerCallback.on_exit(id, code, _event)
     if g:ranger_layout != 'edit'
       silent! bdelete!
     else
@@ -42,17 +47,17 @@ function! s:RangerNVim(opts)
     call s:HandleRangerOutput()
   endfunction
 
-  call termopen("ranger " . a:opts, rangerCallback)
+  call termopen("ranger " . a:opts, l:rangerCallback)
   startinsert
 endfunction
 
-function! s:RangerVim(opts)
-  let cmd = 'silent !ranger' . a:opts
+function! s:RangerVim(opts) abort
+  let l:cmd = 'silent !ranger ' . a:opts
   " TODO: Gvim will now need a callback to work
   if has("gui_running") && (has("gui_gtk") || has("gui_motif"))
-    let cmd = '!' . g:ranger_terminal . ' ranger' . a:opts
+    let l:cmd = '!' . g:ranger_terminal . ' ranger ' . a:opts
   endif
-  exec cmd
+  exec l:cmd
   if !(g:ranger_layout ==# "edit")
     exec 'close'
   endif
@@ -61,17 +66,12 @@ function! s:RangerVim(opts)
   redraw!
 endfunction
 
-" Swap vims native file browser for ranger.
-au BufEnter * silent call s:RangerMagic(expand("<amatch>"))
-let g:loaded_netrwPlugin = 'disable'
-
-
 "---------------------------------------}}}
-function! s:HandleRangerOutput() " {{{
-  let names = s:ReadRangerOutput()
+function! s:HandleRangerOutput() abort " {{{
+  let l:names = s:ReadRangerOutput()
   unlet g:ranger_tempfile
 
-  if empty(names)
+  if empty(l:names)
     if !(has('nvim')) && (g:ranger_layout == "edit")
       execute "normal \<C-O>"
     endif
@@ -79,16 +79,16 @@ function! s:HandleRangerOutput() " {{{
   endif
 
   if exists("g:ranger_command")
-    call s:RunCommand(names)
+    call s:RunCommand(l:names)
   else
-    call s:OpenFile(names)
+    call s:OpenFile(l:names)
   endif
 endfunction
 
-function! s:RunCommand(names)
-  if g:ranger_command == "lcd" || g:ranger_command == "lcd"
-    let parent_dir = fnamemodify(a:names[0], ':h')
-    exec g:ranger_command . ' ' . parent_dir
+function! s:RunCommand(names) abort
+  if g:ranger_cd_mode
+    exec g:ranger_command . ' ' . a:names[0]
+    let g:ranger_cd_mode = 0
   elseif g:ranger_command == "action"
     " Return a path relative to pwd, otherwise home dir, otherwise root.
     let filenames = map(a:names, {key, val -> fnamemodify(val, ":~:.")})
@@ -98,7 +98,7 @@ function! s:RunCommand(names)
   unlet g:ranger_command
 endfunction
 
-function! s:OpenFile(names)
+function! s:OpenFile(names) abort
   " Otherwise open returned filenames in the chosen layout
   for name in a:names
     try
@@ -109,59 +109,60 @@ function! s:OpenFile(names)
   endfor
 endfunction
 
-function! s:ReadRangerOutput()
+function! s:ReadRangerOutput() abort
   if filereadable(g:ranger_tempfile)
     return readfile(g:ranger_tempfile)
   endif
 endfunction
 
 "----------------------------------------------}}}
-function! s:Ranger(path) " {{{
+function! s:Ranger(path) abort " {{{
   " Open a new layout at a path to start ranger
   exec g:ranger_layout . '! ' . a:path
 endfunction
 
 "----------------------------------------------}}}
-function! RangerEdit(layout, ...) " {{{
+function! RangerEdit(layout, ...) abort " {{{
   let g:ranger_layout = a:layout
   if a:0 > 0
     let l:path = a:1
   else
     let l:path = expand("%:p:h")
   endif
-  call s:Ranger(path)
+  call s:Ranger(l:path)
 endfunction
 
 "----------------------------------------------}}}
-function! RangerPWD(command) " {{{
-  let g:ranger_command = a:command
+function! RangerCD(cd_command) abort " {{{
+  let g:ranger_command = a:cd_command
+  let g:ranger_cd_mode = 1
   let g:ranger_layout = 'split'
-  let path = fnameescape(expand("%:p:h"))
-  call s:Ranger(path)
+  let l:path = fnameescape(expand("%:p:h"))
+  call s:Ranger(l:path)
 endfunction
 
 "----------------------------------------------}}}
-function! RangerPaste(action) " {{{
+function! RangerPaste(action) abort " {{{
   " Insert or append filenames
   let g:ranger_command = "action"
   let g:ranger_action = a:action
   let g:ranger_layout = 'split'
-  let path = fnameescape(expand("%:p:h"))
-  call s:Ranger(path)
+  let l:path = fnameescape(expand("%:p:h"))
+  call s:Ranger(l:path)
 endfunction
 
 "----------------------------------------------}}}
-function! RangerChangeOperator(type) " {{{
+function! RangerChangeOperator(type) abort " {{{
   " Change filename selected by operator using ranger
   let g:ranger_command = "action"
   let g:ranger_action =  "`<v`>xi"
   let g:ranger_layout = 'split'
-  let path = s:GetSelectedPath(a:type)
-  call s:Ranger(path)
+  let l:path = s:GetSelectedPath(a:type)
+  call s:Ranger(l:path)
 endfunction
 
 "----------------------------------------------}}}
-function! s:GetSelectedPath(type) " {{{
+function! s:GetSelectedPath(type) abort " {{{
   " Get text from action
   if a:type ==# 'v'
       normal! `<v`>y
@@ -181,8 +182,16 @@ command! RangerVSplit call RangerEdit("vertical split")
 command! RangerTab call RangerEdit("tabedit")
 command! RangerInsert call RangerPaste('i')
 command! RangerAppend call RangerPaste('a')
-command! RangerLCD call RangerPWD('lcd')
-command! RangerCD call RangerPWD('cd')
+command! RangerLCD call RangerCD('lcd')
+command! RangerCD call RangerCD('cd')
 
 "----------------------------------------------}}}
+" {{{  Plugin initialization
+" Swap vims native file browser for ranger.
+let g:loaded_netrwPlugin = 'disable'
+augroup ranger
+  autocmd!
+  autocmd BufEnter * silent call s:RangerMagic(expand("<amatch>"))
+augroup END
+let g:ranger_cd_mode = 0
 
