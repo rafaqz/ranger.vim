@@ -58,8 +58,14 @@ function! s:RangerVim(opts) abort
     let l:cmd = '!' . g:ranger_terminal . ' ranger ' . a:opts
   endif
   exec l:cmd
-  if !(g:ranger_layout ==# "edit")
-    exec 'close'
+  if g:ranger_layout != 'edit'
+    silent! bdelete!
+  else
+    if bufnr('%') != bufnr('#')
+      setl bufhidden=delete | buffer! #
+    else
+      enew | bdelete! #
+    endif
   endif
 
   call s:HandleRangerOutput()
