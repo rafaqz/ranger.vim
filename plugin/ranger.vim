@@ -194,10 +194,13 @@ command! RangerCD call RangerCD('cd')
 "----------------------------------------------}}}
 " {{{  Plugin initialization
 " Swap vims native file browser for ranger.
-let g:loaded_netrwPlugin = 'disable'
 augroup ranger
   autocmd!
   autocmd BufEnter * silent call s:RangerMagic(expand("<amatch>"))
+  " The FileExplorer augroup is used by Netrw for editing local files and
+  " directories. This disables Netrw for local files, but keeps it for remote
+  " files.
+  autocmd VimEnter * augroup FileExplorer | au! | augroup END
 augroup END
 let g:ranger_cd_mode = 0
 
