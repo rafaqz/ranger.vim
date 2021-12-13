@@ -45,42 +45,66 @@ only.
 
 The rest of the readme assumes these mappings:
 
-    map <leader>rr :RangerEdit<cr>
-    map <leader>rv :RangerVSplit<cr>
-    map <leader>rs :RangerSplit<cr>
-    map <leader>rt :RangerTab<cr>
-    map <leader>ri :RangerInsert<cr>
-    map <leader>ra :RangerAppend<cr>
-    map <leader>rc :set operatorfunc=RangerChangeOperator<cr>g@
-    map <leader>rd :RangerCD<cr>
-    map <leader>rld :RangerLCD<cr>
+```vimscript
+map <leader>rr :RangerEdit<cr>
+map <leader>rv :RangerVSplit<cr>
+map <leader>rs :RangerSplit<cr>
+map <leader>rt :RangerTab<cr>
+map <leader>ri :RangerInsert<cr>
+map <leader>ra :RangerAppend<cr>
+map <leader>rc :set operatorfunc=RangerChangeOperator<cr>g@
+map <leader>rd :RangerCD<cr>
+map <leader>rld :RangerLCD<cr>
+```
 
 ## To browse and open file(s) with ranger:
 
-    <leader>rr
+```vimscript
+<leader>rr
+```
 
 Open files(s) with ranger in tabs, splits and vertical splits.
 Each file selected gets a new tab/split.
 
-    <leader>rt
-    <leader>rs
-    <leader>rv
+```vimscript
+<leader>rt
+<leader>rs
+<leader>rv
+```
 
 ## To insert or append a filepath:
 
-    <leader>ri
-    <leader>ra
+```vimscript
+<leader>ri
+<leader>ra
+```
+
+## To change string insertion format
+
+The format of inserted strings can be set with:
+
+```vimscript
+let g:ranger_insert_format = ":~:."
+```
+
+where the value is passed to `fnamemodify`.
 
 ## To use ranger as an operator and change a file path under the cursor:
 
-    <leader>rc[movement]
+```vimscript
+<leader>rc[movement]
+```
 
 This example will replace the text inside () with whatever file path you select in ranger. If
 it's already a valid path ranger will open there:
 
-    <leader>rci( 
+```vimscript
+<leader>rci( 
+```
 
 ## To change the current working directory:
 
-    <leader>rd
-    <leader>rld
+```vimscript
+<leader>rd
+<leader>rld
+```
