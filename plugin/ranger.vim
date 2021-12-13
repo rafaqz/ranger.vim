@@ -4,6 +4,15 @@
 "
 " Thanks airodactyl for code from neovim-ranger
 
+let s:ranger_insert_format = ":~:."
+function s:insert_format()
+   if (exists("g:ranger_insert_format"))
+     return g:ranger_insert_format
+   else
+     return s:ranger_insert_format
+   endif
+endfunction
+
 "----------------------------------------------
 function! s:RangerMagic(path) abort " {{{
 	if !(isdirectory(a:path))
@@ -97,7 +106,7 @@ function! s:RunCommand(names) abort
     let g:ranger_cd_mode = 0
   elseif g:ranger_command == "action"
     " Return a path relative to pwd, otherwise home dir, otherwise root.
-    let filenames = map(a:names, {key, val -> fnamemodify(val, ":~:.")})
+    let filenames = map(a:names, {key, val -> fnamemodify(val, s:insert_format())})
     let str = join(filenames, "\r")
     exec "normal " . g:ranger_action . str
   endif
